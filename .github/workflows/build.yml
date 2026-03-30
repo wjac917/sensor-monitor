@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   release:
-    types: [ created ]
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
@@ -28,16 +28,17 @@ jobs:
         run: |
           pyinstaller --onefile --windowed --name DisplacementSensorMonitor sensor_monitor_v2.py
 
-      - name: Create Release
-        if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/DisplacementSensorMonitor.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: DisplacementSensorMonitor-Windows
           path: dist/DisplacementSensorMonitor.exe
+          retention-days: 30
+
+      - name: Upload to Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/DisplacementSensorMonitor.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
